@@ -12,7 +12,7 @@ const uiStore = useUIStore()
         <div class="p-10">
             <h2 class="font-bold text-3xl md:text-4xl my-5"> {{ uiStore.activeZekr.title }}</h2>
             <div class="flex flex-col gap-4">
-                <div v-for="zekr in uiStore.activeZekr.content" class="p-5 shadow cursor-pointer " :class="[zekr.isRead ? 'bg-teal-500 text-white' : 'text-gray-800 bg-white  hover:bg-teal-50']"  role="button" @click="uiStore.setActiveContentRead(zekr)">
+                <div v-for="zekr in uiStore.activeZekr.content" class="p-5 rounded shadow cursor-pointer " :class="[zekr.isRead ? 'bg-teal-500 text-white' : 'text-gray-800 bg-white  hover:bg-teal-50']"  role="button" @click="uiStore.setActiveContentRead(zekr)">
                     <p class="text-xl leading-9 ">
                         {{ zekr.text }}
                     </p>
