@@ -13,7 +13,10 @@ const uiStore = useUIStore()
                 @click="() => { uiStore.toggleContent() }">
                 <IconClose class="w-6 h-6 fill-white" />
             </button>
-            <h1 class="font-bold text-3xl text-white">حصن المسلم</h1>
+            <div class="flex items-center">
+                <img src="@/assets/logo.png" alt="logo" class="w-10 h-10 ml-4" />
+                <h1 class="font-bold text-3xl text-white">حصن المسلم</h1>
+            </div>
         </div>
     </nav>
 </template>
