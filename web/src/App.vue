@@ -6,7 +6,7 @@ import MainContent from './components/MainContent.vue';
 
 <template>
   <Navbar />
-  <main class="grid grid-cols-12  h-full">
+  <main class="grid grid-cols-10">
     <Sidebar />
     <MainContent />
   </main>
