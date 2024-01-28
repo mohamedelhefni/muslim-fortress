@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,6 +6,12 @@
 html,
 body {
   font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+.font-quran {
+  font-family: "Amiri", serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 /* ===== Scrollbar CSS ===== */
