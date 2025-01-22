@@ -20,11 +20,9 @@ const uiStore = useUIStore()
                 <h1 class="font-bold text-3xl text-white">حصن المسلم</h1>
             </div>
         </div>
-        <div>
-            <button @click="() => { uiStore.toggleDarkTheme() }">
-                <IconMoon  v-if="uiStore.currentTheme == 'light'" class="w-6 h-6 fill-white " />
-                <IconSun v-else class="w-6 h-6 fill-white" />
-            </button>
-        </div>
+        <button class="ml-2.5" @click="() => { uiStore.toggleDarkTheme() }">
+            <IconMoon v-if="uiStore.currentTheme == 'light'" class="w-6 h-6 fill-white " />
+            <IconSun v-else class="w-6 h-6 fill-white" />
+        </button>
     </nav>
 </template>
