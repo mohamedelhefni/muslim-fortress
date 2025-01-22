@@ -6,7 +6,7 @@ const uiStore = useUIStore()
 
 </script>
 <template>
-    <div class="fixed top-0 left-0  col-span-10 dark:bg-stone-700 md:relative md:col-span-8 w-full h-full  md:max-h-[92vh] overflow-y-scroll"
+    <div class="fixed top-0 left-0  col-span-10 bg-gray-50 dark:bg-stone-700 md:relative md:col-span-8 w-full h-full  md:max-h-[92vh] overflow-y-scroll"
         v-if="uiStore.isContentActive && uiStore.activeZekr">
         <Navbar v-if="uiStore.isSmallScreen" />
         <div class="p-10">
