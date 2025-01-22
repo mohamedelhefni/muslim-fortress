@@ -12,7 +12,7 @@ const uiStore = useUIStore()
 
 <template>
     <div
-        class="bg-white col-span-10 md:col-span-3 lg:col-span-2 py-10  px-5 flex flex-col items-center h-[92vh] max-h-[92vh] overflow-y-scroll">
+        class="bg-white dark:bg-stone-800 dark:text-white col-span-10 md:col-span-3 lg:col-span-2 py-10  px-3 flex flex-col items-center h-[92vh] max-h-[92vh] overflow-y-scroll">
         <SearchBar />
         <template v-if="uiStore.searchResults.length > 0 && uiStore.searchQuery != ''">
             <NavHeader text="نتائج البحث" />

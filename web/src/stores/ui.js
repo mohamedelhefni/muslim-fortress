@@ -11,6 +11,7 @@ export const useUIStore = defineStore('uiStore', () => {
     const activeZekr = ref({})
     const favoriteZekrIds = ref([])
     const favoriteAzkar = computed(() => azkar.value.filter((zekr) => favoriteZekrIds.value.includes(zekr.id)))
+    const currentTheme = ref("light")
 
 
     function toggleContent() {
@@ -63,6 +64,16 @@ export const useUIStore = defineStore('uiStore', () => {
         searchResults.value = azkar.value.filter(zekr => zekr.title.includes(searchQuery.value))
     }
 
-    return { azkar, searchResults, isContentActive, isSmallScreen, toggleContent, activeZekr, favoriteZekrIds, favoriteAzkar, searchQuery, setActiveZekr, setActiveContentRead, setIsFavrorite, isFavorite, searchZekr }
+    function toggleDarkTheme() {
+        let theme = currentTheme.value  
+        if (theme === 'light') {
+            document.documentElement.classList.add('dark')
+            currentTheme.value = "dark"
+        } else {
+            document.documentElement.classList.remove('dark')
+            currentTheme.value = "light"
+        }
+    }
+    return { azkar, searchResults, isContentActive, isSmallScreen, toggleContent, activeZekr, favoriteZekrIds, favoriteAzkar, searchQuery, setActiveZekr, setActiveContentRead, setIsFavrorite, isFavorite, searchZekr, currentTheme , toggleDarkTheme}
 })
 

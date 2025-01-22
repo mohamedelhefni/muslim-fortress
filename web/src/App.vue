@@ -2,6 +2,12 @@
 import Navbar from './components/Navbar.vue';
 import Sidebar from './components/Sidebar.vue';
 import MainContent from './components/MainContent.vue';
+
+import { useUIStore } from './stores/ui';
+const uiStore = useUIStore()
+document.documentElement.classList.toggle("dark", uiStore.currentTheme == "dark")
+
+
 </script>
 
 <template>
