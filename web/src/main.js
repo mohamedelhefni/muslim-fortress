@@ -1,11 +1,9 @@
 import './assets/main.css'
-import { inject } from "@vercel/analytics";
 import { createApp, watch } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 
 
-inject()
 const app = createApp(App)
 let pinia = createPinia()
 
