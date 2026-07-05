@@ -4,6 +4,13 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 
 
+const siraaj = window.SiraajAnalytics?.analytics || window.SiraajAnalytics?.default
+siraaj?.init({
+  apiUrl: 'https://siraaj.live',
+  projectId: 'muslim-fortress',
+  autoTrack: true
+})
+
 const app = createApp(App)
 let pinia = createPinia()
 

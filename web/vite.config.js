@@ -15,8 +15,9 @@ export default defineConfig({
       manifest: {
         name: 'حصن المسلم',
         short_name: 'حصن المسلم',
-        description: 'حصن المسلم',
-        theme_color: '#ffffff',
+        description: 'حصن المسلم - أذكار المسلم اليومية',
+        theme_color: '#0c1f1c',
+        background_color: '#0c1f1c',
         icons: [
           {
             src: '/logo.png',

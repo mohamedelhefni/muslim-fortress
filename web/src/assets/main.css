@@ -1,26 +1,204 @@
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
-  font-family: 'Amiri', sans-serif;
+@layer base {
+  :root {
+    color-scheme: dark;
+
+    --bg: oklch(0.165 0.038 165);
+    --bg-deep: oklch(0.130 0.034 165);
+    --surface: oklch(0.215 0.044 165);
+    --surface-2: oklch(0.265 0.050 165);
+    --border: oklch(0.305 0.040 165 / 0.55);
+
+    --ink: oklch(0.945 0.030 90);
+    --ink-soft: oklch(0.880 0.035 90);
+    --muted: oklch(0.620 0.025 100);
+    --muted-2: oklch(0.490 0.022 100);
+
+    --primary: oklch(0.745 0.150 165);
+    --primary-2: oklch(0.640 0.155 165);
+
+    --accent: oklch(0.815 0.135 80);
+    --accent-2: oklch(0.710 0.150 65);
+
+    --accent-soft: oklch(0.265 0.075 75);
+    --accent-deep: oklch(0.575 0.135 70);
+    --accent-mark: oklch(0.420 0.115 75 / 0.45);
+    --accent-ring: oklch(0.815 0.135 80 / 0.30);
+
+    --progress-trough: oklch(0.295 0.045 165);
+    --progress-fill: oklch(0.815 0.135 80);
+
+    --ring: oklch(0.815 0.135 80 / 0.55);
+
+    --shadow-card: 0 1px 0 hsl(165 40% 0% / 0.30), 0 12px 32px hsl(165 50% 0% / 0.24);
+    --shadow-soft: 0 6px 28px hsl(165 40% 0% / 0.22);
+    --shadow-glow: 0 0 0 1px hsl(80 80% 50% / 0.10), 0 10px 32px hsl(80 80% 40% / 0.18);
+  }
+
+  :root.light {
+    color-scheme: light;
+
+    --bg: oklch(0.978 0.010 85);
+    --bg-deep: oklch(0.950 0.016 85);
+    --surface: oklch(1.000 0.000 0);
+    --surface-2: oklch(0.950 0.016 85);
+    --border: oklch(0.205 0.025 165 / 0.14);
+
+    --ink: oklch(0.195 0.030 165);
+    --ink-soft: oklch(0.300 0.030 165);
+    --muted: oklch(0.470 0.020 100);
+    --muted-2: oklch(0.380 0.022 100);
+
+    --primary: oklch(0.450 0.115 165);
+    --primary-2: oklch(0.380 0.120 165);
+
+    --accent: oklch(0.485 0.135 65);
+    --accent-2: oklch(0.395 0.130 60);
+
+    --accent-soft: oklch(0.920 0.045 75);
+    --accent-deep: oklch(0.395 0.130 60);
+    --accent-mark: oklch(0.840 0.115 75);
+    --accent-ring: oklch(0.485 0.135 65 / 0.30);
+
+    --progress-trough: oklch(0.890 0.020 85);
+    --progress-fill: oklch(0.485 0.135 65);
+
+    --ring: oklch(0.485 0.135 65 / 0.55);
+
+    --shadow-card: 0 1px 0 hsl(85 30% 50% / 0.06), 0 8px 28px hsl(165 30% 30% / 0.10);
+    --shadow-soft: 0 6px 24px hsl(165 25% 30% / 0.08);
+    --shadow-glow: 0 0 0 1px hsl(70 80% 50% / 0.10), 0 10px 28px hsl(70 60% 40% / 0.10);
+  }
+
+  html, body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    background: var(--bg);
+    color: var(--ink);
+    font-feature-settings: "ss01", "cv02", "cv11";
+  }
+
+  body {
+    min-height: 100dvh;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.215 0.045 165) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 100% 100%, oklch(0.165 0.050 165) 0%, transparent 60%);
+    background-attachment: fixed;
+  }
+
+  :root.light body {
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.965 0.014 85) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 100% 100%, oklch(0.985 0.008 85) 0%, transparent 60%);
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  button,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  input,
+  button {
+    font-family: inherit;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
 }
 
-.font-quran {
-  font-family: "Amiri", serif;
-  font-weight: 400;
-  font-style: normal;
-}
+@layer utilities {
+  .font-quran {
+    font-family: "Amiri", serif;
+    font-weight: 400;
+    font-style: normal;
+  }
 
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 
+  .scroll-soft {
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface-2) transparent;
+  }
+  .scroll-soft::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scroll-soft::-webkit-scrollbar-thumb {
+    background: var(--surface-2);
+    border-radius: 999px;
+  }
 
-*::-webkit-scrollbar {
-  display: none;
-}
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
 
+  .rule-thin {
+    border-top: 1px solid var(--border);
+  }
+  .rule-thick {
+    border-top: 2px solid var(--accent);
+    width: 56px;
+  }
 
-.dark {
-  color-scheme: dark;
+  .chip-accent {
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+  }
+
+  .mark-accent {
+    background: var(--accent-mark);
+    color: var(--accent-deep);
+    border-radius: 3px;
+    padding: 0 2px;
+    font-weight: 600;
+  }
+
+  @supports (padding: max(0px)) {
+    .pb-safe {
+      padding-bottom: max(env(safe-area-inset-bottom), 0px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .hairline {
+    border: 1px solid var(--border);
+  }
 }

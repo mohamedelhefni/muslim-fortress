@@ -1,3 +1,63 @@
+const ARABIC_COUNT_PATTERNS = [
+    ['ثلاثاً وثلاثين', 33],
+    ['أربعاً وثلاثين', 34],
+    ['خمساً وثلاثين', 35],
+    ['ثلاث تكبيرات', 3],
+    ['أربع تكبيرات', 4],
+    ['سبع تكبيرات', 7],
+    ['مائة مرة', 100],
+    ['مائة', 100],
+    ['تسعين مرة', 90],
+    ['ثمانين مرة', 80],
+    ['سبعين مرة', 70],
+    ['ستين مرة', 60],
+    ['خمسين مرة', 50],
+    ['أربعين مرة', 40],
+    ['ثلاثين مرة', 30],
+    ['عشرين مرة', 20],
+    ['عشر مرات', 10],
+    ['تسع مرات', 9],
+    ['ثمان مرات', 8],
+    ['سبع مرات', 7],
+    ['ست مرات', 6],
+    ['خمس مرات', 5],
+    ['أربع مرات', 4],
+    ['ثلاث مرات', 3],
+    ['مرتين', 2],
+    ['مرة واحدة', 1],
+    ['ثلاثاً', 3],
+    ['أربعاً', 4],
+    ['خمساً', 5],
+    ['سبعاً', 7],
+    ['عشراً', 10],
+]
+
+function parseCount(textArr) {
+    const text = Array.isArray(textArr) ? textArr.join(' ') : ''
+    if (!text) return 1
+
+    const digitMatch = text.match(/\(\s*(\d+)\s*(?:مرة|مرات|تكبيرات?|تسبيحة|تسبيحات)?\s*\)/)
+    if (digitMatch) return parseInt(digitMatch[1], 10)
+
+    const parens = text.match(/\(([^)]+)\)/g)
+    if (parens) {
+        for (const p of parens) {
+            const inner = p.slice(1, -1).trim()
+            const digitInParens = inner.match(/^(\d+)$/)
+            if (digitInParens) return parseInt(digitInParens[1], 10)
+            for (const [pattern, count] of ARABIC_COUNT_PATTERNS) {
+                if (inner.includes(pattern)) return count
+            }
+        }
+    }
+
+    for (const [pattern, count] of ARABIC_COUNT_PATTERNS) {
+        if (text.includes(pattern)) return count
+    }
+
+    return 1
+}
+
 export const data = [
     {
         "text": [
@@ -1685,3 +1745,7 @@ export const data = [
         "id": 134
     }
 ]
+
+data.forEach((item) => {
+    item.counts = item.text.map((t) => parseCount([t]))
+})
