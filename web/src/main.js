@@ -1,30 +1,16 @@
 import './assets/main.css'
-import { createApp, watch } from 'vue'
+import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 
-
-const siraaj = window.SiraajAnalytics?.analytics || window.SiraajAnalytics?.default
-siraaj?.init({
-  apiUrl: 'https://siraaj.live',
-  projectId: 'muslim-fortress',
-  autoTrack: true
-})
-
-const app = createApp(App)
-let pinia = createPinia()
-
-app.use(pinia)
-const piniaState = localStorage.getItem('piniaState')
-if (piniaState) {
-    pinia.state.value = JSON.parse(piniaState)
+// The SDK only auto-tracks the first load and <a> clicks, and buffers events for 30s.
+// This is a single-page app, so send a page_view per section and flush when the tab is hidden
+// (mobile browsers rarely fire beforeunload, so buffered events were being lost).
+const siraaj = window.SiraajAnalytics?.analytics
+if (siraaj) {
+    siraaj.init({ apiUrl: 'https://siraaj.live', projectId: 'muslim-fortress', autoTrack: true, useBeacon: true })
+    window.addEventListener('hashchange', () => siraaj.pageView(location.pathname + location.hash))
+    document.addEventListener('visibilitychange', () => document.hidden && siraaj.flush(true))
 }
-watch(
-    pinia.state,
-    (state) => {
-        localStorage.setItem('piniaState', JSON.stringify(state))
-    },
-    { deep: true }
-)
 
-app.mount('#app')
+createApp(App).use(createPinia()).mount('#app')
