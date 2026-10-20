@@ -1,124 +1,106 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
-import { data } from '../data/data.js';
+import { data } from '../data/data.js'
 
-const STORAGE_THEME = 'mf:theme'
+const KEY_THEME = 'mf:theme'
+const KEY_FAVS = 'mf:favorites'
+const KEY_PROGRESS = 'mf:progress'
+
+function load(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(key)) ?? fallback } catch { return fallback }
+}
+function save(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)) } catch {}
+}
+const today = () => new Date().toLocaleDateString('en-CA')
+
+// Strip tashkeel/tatweel and fold letter variants so "الحمد" finds "الحَمْدُ".
+const MARKS = '[\\u064B-\\u065F\\u0670\\u0640]*'
+const FOLD = { 'ا': '[اأإآٱ]', 'أ': '[اأإآٱ]', 'إ': '[اأإآٱ]', 'آ': '[اأإآٱ]', 'ه': '[هة]', 'ة': '[هة]', 'ي': '[يى]', 'ى': '[يى]' }
+export function searchRegex(q) {
+    const chars = [...q.replace(/[ً-ٰٟـ]/g, '').trim()]
+    if (!chars.length) return null
+    const body = chars.map(c => (FOLD[c] ?? c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s/, '\\s+')) + MARKS).join('')
+    return new RegExp(body, 'g')
+}
 
 export const useUIStore = defineStore('uiStore', () => {
-    const searchQuery = ref('');
-    const searchResults = ref([])
-    const isContentActive = ref(false);
-    const isSmallScreen = ref(typeof window !== 'undefined' && window.innerWidth < 640)
-    const isSidebarOpen = ref(false)
-    const azkar = ref(data)
-    const activeZekr = ref({})
-    const favoriteZekrIds = ref([])
-    const favoriteAzkar = computed(() => azkar.value.filter((zekr) => favoriteZekrIds.value.includes(zekr.id)))
+    const azkar = data
+    const byId = new Map(data.map(z => [z.id, z]))
 
-    const initialTheme = (() => {
-        if (typeof window === 'undefined') return 'dark'
-        const saved = localStorage.getItem(STORAGE_THEME)
-        if (saved === 'light' || saved === 'dark') return saved
-        return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
-    })()
-    const currentTheme = ref(initialTheme)
-
-    function applyTheme(theme) {
-        if (typeof document === 'undefined') return
-        document.documentElement.classList.toggle('light', theme === 'light')
+    // Section lives in the URL hash: deep links, browser back, and one page_view per section.
+    const activeId = ref(null)
+    function syncFromHash() {
+        const z = byId.get(Number(location.hash.slice(1)))
+        activeId.value = z ? z.id : null
+        document.title = z ? `${z.title} · حصن المسلم` : 'حصن المسلم'
     }
-    applyTheme(currentTheme.value)
+    syncFromHash()
+    window.addEventListener('hashchange', syncFromHash)
+    const activeZekr = computed(() => byId.get(activeId.value) ?? null)
 
-    if (typeof window !== 'undefined') {
-        window.addEventListener('resize', () => {
-            isSmallScreen.value = window.innerWidth < 640
-            if (!isSmallScreen.value) isSidebarOpen.value = false
-        })
+    // Favorites (migrates the old whole-store `piniaState` blob once, by title).
+    if (localStorage.getItem('piniaState')) {
+        const old = load('piniaState', {})?.uiStore
+        const titles = new Set((old?.azkar ?? []).filter(z => old.favoriteZekrIds?.includes(z.id)).map(z => z.title))
+        save(KEY_FAVS, data.filter(z => titles.has(z.title)).map(z => z.id))
+        localStorage.removeItem('piniaState')
     }
-
-    function openSidebar() { isSidebarOpen.value = true }
-    function closeSidebar() { isSidebarOpen.value = false }
-    function toggleSidebar() { isSidebarOpen.value = !isSidebarOpen.value }
-
-    function toggleContent() {
-        isContentActive.value = !isContentActive.value;
-        if (!isContentActive.value) closeSidebar()
+    const favoriteIds = ref(load(KEY_FAVS, []))
+    watch(favoriteIds, v => save(KEY_FAVS, v), { deep: true })
+    const favoriteAzkar = computed(() => favoriteIds.value.map(id => byId.get(id)).filter(Boolean))
+    const isFavorite = (zekr) => favoriteIds.value.includes(zekr.id)
+    function toggleFavorite(zekr) {
+        const i = favoriteIds.value.indexOf(zekr.id)
+        i === -1 ? favoriteIds.value.push(zekr.id) : favoriteIds.value.splice(i, 1)
     }
 
-    function setActiveZekr(zekr) {
-        isContentActive.value = true
-        isSidebarOpen.value = false
-        activeZekr.value = zekr
-        activeZekr.value.content = zekr.text.map((content, idx) => ({
-            id: idx,
-            isRead: false,
-            text: content,
-            count: zekr.counts?.[idx] ?? 1,
-            currentCount: 0,
-        }))
+    // Counts: { date, counts: { [itemId]: n } }, kept per day so leaving a section or reloading keeps your place.
+    const stored = load(KEY_PROGRESS, null)
+    const progress = ref(stored?.date === today() ? stored : { date: today(), counts: {} })
+    watch(progress, v => save(KEY_PROGRESS, v), { deep: true })
+    function rollDay() {
+        if (progress.value.date !== today()) progress.value = { date: today(), counts: {} }
+    }
+    const countOf = (item) => progress.value.counts[item.id] ?? 0
+    const isDone = (item) => countOf(item) >= item.count
+    function increment(item) {
+        rollDay()
+        if (isDone(item)) return false // a stray tap must never wipe a finished dhikr
+        progress.value.counts[item.id] = countOf(item) + 1
+        return isDone(item)
+    }
+    function reset(item) { delete progress.value.counts[item.id] }
+    function resetSection(zekr) { zekr.items.forEach(reset) }
+    const hasProgress = computed(() => Object.keys(progress.value.counts).length > 0)
+    function resetAll() { progress.value.counts = {} }
+    function sectionProgress(zekr) {
+        const done = zekr.items.filter(isDone).length
+        return { done, total: zekr.items.length, percent: Math.round((done / zekr.items.length) * 100) }
     }
 
-    function incrementCounter(item) {
-        const target = item.count || 1
-        if (item.currentCount < target) {
-            item.currentCount += 1
-            if (item.currentCount >= target) item.isRead = true
-        } else {
-            item.currentCount = 0
-            item.isRead = false
-        }
-    }
-
-    function resetCounter(item) {
-        item.currentCount = 0
-        item.isRead = false
-    }
-
-    function isFavorite(zekr) {
-        return favoriteZekrIds.value.includes(zekr.id)
-    }
-
-    function setIsFavrorite(zekr) {
-        if (isFavorite(zekr)) {
-            const index = favoriteZekrIds.value.indexOf(zekr.id)
-            favoriteZekrIds.value.splice(index, 1)
-        } else {
-            favoriteZekrIds.value.push(zekr.id)
-        }
-    }
-
-    function searchZekr() {
-        if (searchQuery.value === '') {
-            searchResults.value = []
-            return
-        }
-
-        const q = searchQuery.value
-        searchResults.value = azkar.value.filter(zekr =>
-            zekr.title.includes(q) ||
-            zekr.text.some(line => line && line.includes(q))
-        )
-    }
-
-    function toggleDarkTheme() {
-        currentTheme.value = currentTheme.value === 'dark' ? 'light' : 'dark'
-        applyTheme(currentTheme.value)
-        try { localStorage.setItem(STORAGE_THEME, currentTheme.value) } catch {}
-    }
-
-    const progress = computed(() => {
-        if (!activeZekr.value?.content?.length) return { read: 0, total: 0, percent: 0 }
-        const total = activeZekr.value.content.length
-        const read = activeZekr.value.content.filter((c) => c.isRead).length
-        return { read, total, percent: total ? Math.round((read / total) * 100) : 0 }
+    const searchQuery = ref('')
+    const searchResults = computed(() => {
+        const re = searchRegex(searchQuery.value)
+        if (!re) return []
+        const hit = (s) => { re.lastIndex = 0; return re.test(s) }
+        return data.filter(z => hit(z.title) || z.items.some(i => hit(i.text)))
     })
 
+    const currentTheme = ref(document.documentElement.dataset.theme)
+    function toggleTheme() {
+        currentTheme.value = currentTheme.value === 'dark' ? 'light' : 'dark'
+        document.documentElement.dataset.theme = currentTheme.value
+        try { localStorage.setItem(KEY_THEME, currentTheme.value) } catch {}
+    }
+
     return {
-        azkar, searchResults, isContentActive, isSmallScreen, isSidebarOpen,
-        toggleContent, openSidebar, closeSidebar, toggleSidebar,
-        activeZekr, favoriteZekrIds, favoriteAzkar, searchQuery,
-        setActiveZekr, incrementCounter, resetCounter,
-        setIsFavrorite, isFavorite, searchZekr, currentTheme, toggleDarkTheme,
-        progress,
+        azkar, activeId, activeZekr,
+        favoriteAzkar, isFavorite, toggleFavorite,
+        countOf, isDone, increment, reset, resetSection, sectionProgress, hasProgress, resetAll,
+        searchQuery, searchResults,
+        currentTheme, toggleTheme,
     }
 })
+
+export const arNum = (n) => n.toLocaleString('ar-EG')

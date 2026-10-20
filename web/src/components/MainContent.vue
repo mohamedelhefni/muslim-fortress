@@ -1,215 +1,133 @@
 <script setup>
-import { ref } from 'vue'
-import { useUIStore } from '../stores/ui';
-import IconCheck from './icons/IconCheck.vue';
+import { computed } from 'vue'
+import { useUIStore, arNum } from '../stores/ui'
 
-const uiStore = useUIStore()
-const tapTarget = ref(null)
-
-function tapToCount(item, event) {
-    uiStore.incrementCounter(item)
-    pulse(event.currentTarget)
-    if (item.isRead) scrollToNext()
+const ui = useUIStore()
+const zekr = computed(() => ui.activeZekr)
+const progress = computed(() => zekr.value && ui.sectionProgress(zekr.value))
+const index = computed(() => ui.azkar.indexOf(zekr.value))
+const prev = computed(() => ui.azkar[index.value - 1] ?? null)
+const next = computed(() => ui.azkar[index.value + 1] ?? null)
+function tap(item) {
+    if (ui.increment(item)) navigator.vibrate?.(15)
 }
 
-function pulse(el) {
-    if (!el) return
-    el.classList.remove('tap-pulse')
-    void el.offsetWidth
-    el.classList.add('tap-pulse')
-}
-
-function scrollToNext() {
-    setTimeout(() => {
-        const content = uiStore.activeZekr?.content
-        if (!content) return
-        const next = content.find(c => !c.isRead)
-        if (next) {
-            document.getElementById(`zekr-${next.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }
-    }, 120)
-}
+function featured(id) { return ui.azkar.find(z => z.id === id) }
 </script>
 
 <template>
-    <div v-if="uiStore.isContentActive && uiStore.activeZekr?.id"
-        class="col-span-10 md:col-span-7 lg:col-span-8 w-full md:h-[calc(100dvh-65px)] md:max-h-[calc(100dvh-65px)] overflow-y-scroll no-scrollbar"
-        style="background: var(--bg);">
-
-        <div class="sticky top-0 z-20 backdrop-blur-md border-b border-border/60"
-            style="background: color-mix(in oklch, var(--bg) 88%, transparent);">
-            <div class="px-5 md:px-12 pt-6 md:pt-8 pb-4 md:pb-5 max-w-3xl">
-                <div class="flex items-center gap-3 mb-2">
-                    <span class="inline-block w-8 h-px"
-                        style="background: var(--accent);" aria-hidden="true"></span>
-                    <span class="text-[11px] tracking-[0.18em] uppercase font-semibold"
-                        style="color: var(--accent);">
-                        ذكر
-                    </span>
-                </div>
-                <h2 class="font-bold text-2xl md:text-[2.5rem] text-ink leading-[1.15] tracking-tightish font-quran text-balance">
-                    {{ uiStore.activeZekr.title }}
-                </h2>
-                <div v-if="uiStore.progress.total > 0" class="mt-5 flex items-center gap-3">
-                    <div class="progress-track flex-1 h-1.5 rounded-full overflow-hidden"
-                        style="background: var(--progress-trough);">
-                        <div class="progress-fill h-full transition-[width] duration-700 ease-out-expo"
-                            :style="{ width: uiStore.progress.percent + '%', background: 'var(--progress-fill)' }"></div>
+    <main class="h-full overflow-y-auto bg-surface" :key="zekr?.id ?? 'home'">
+        <!-- Home (md+ only; on phones the index is home) -->
+        <div v-if="!zekr" class="min-h-full grid place-items-center px-6 py-12">
+            <div class="w-full max-w-sm text-center">
+                <div class="relative overflow-hidden mx-auto w-56 h-72 rounded-t-full rounded-b-md bg-primary text-on-primary grid place-items-center px-6 pt-16 pb-8">
+                    <div class="khatam absolute inset-0 opacity-[0.12]" aria-hidden="true"></div>
+                    <div class="relative">
+                        <p class="font-quran text-2xl leading-[2] text-balance">أحبُّ الأعمالِ إلى اللهِ أدومُها وإن قلَّ</p>
+                        <p class="mt-3 text-xs opacity-80">متفق عليه</p>
                     </div>
-                    <span class="text-xs font-bold tabular-nums whitespace-nowrap"
-                        style="color: var(--accent);">
-                        {{ uiStore.progress.read }} / {{ uiStore.progress.total }}
-                    </span>
+                </div>
+                <h1 class="mt-8 font-display font-bold text-4xl">حصن المسلم</h1>
+                <p class="mt-2 text-muted text-pretty">من أذكار الكتاب والسنة. اختر بابًا من الفهرس، واضغط على الذكر لتعدّه.</p>
+                <div class="mt-6 flex flex-wrap justify-center gap-3">
+                    <a v-if="featured(27)" href="#27"
+                        class="inline-flex items-center min-h-11 px-5 rounded-md bg-primary text-on-primary text-sm font-semibold no-underline hover:bg-primary-hover transition-colors duration-200">
+                        أذكار الصباح والمساء
+                    </a>
+                    <a v-if="featured(28)" href="#28"
+                        class="inline-flex items-center min-h-11 px-5 rounded-md border border-line-strong text-ink text-sm font-semibold no-underline hover:border-primary hover:text-primary transition-colors duration-200">
+                        أذكار النوم
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="px-5 md:px-12 py-6 md:py-10 max-w-3xl space-y-3.5 md:space-y-4 pb-safe">
-            <article v-for="zekr in uiStore.activeZekr.content" :key="zekr.id"
-                :id="`zekr-${zekr.id}`"
-                class="group relative rounded-card overflow-hidden transition-all duration-300 ease-out-quart"
-                :class="zekr.isRead ? 'is-read' : ''"
-                style="background: var(--surface);">
-
-                <span class="absolute top-3.5 inset-inline-start-3.5 text-[10px] font-bold tabular-nums select-none pointer-events-none z-10"
-                    style="color: var(--muted-2);" aria-hidden="true">
-                    {{ zekr.id + 1 }}
-                </span>
-
-                <button type="button"
-                    @click="tapToCount(zekr, $event)"
-                    :aria-label="`الذكر ${zekr.id + 1}، ${zekr.currentCount ?? 0} من ${zekr.count ?? 1}. اضغط للتسبيح.`"
-                    :aria-pressed="zekr.isRead"
-                    class="tap-target block w-full text-right px-5 md:px-7 pt-9 pb-5 md:pt-11 md:pb-7 cursor-pointer transition-opacity duration-300 focus:outline-none"
-                    :class="zekr.isRead ? 'opacity-55' : 'opacity-100'">
-                    <p class="font-quran text-[1.25rem] md:text-[1.55rem] leading-[2.1] md:leading-[2.3] text-ink text-pretty text-center select-none"
-                        dir="rtl">
-                        {{ zekr.text }}
-                    </p>
-                </button>
-
-                <div class="flex items-center justify-between gap-3 px-5 md:px-7 pb-4 md:pb-5 pt-2"
-                    style="border-top: 1px solid var(--border);">
-
-                    <div class="counter-display flex items-center gap-2.5 select-none pointer-events-none"
-                        aria-hidden="true">
-                        <span class="grid place-items-center w-8 h-8 rounded-full text-xs font-bold tabular-nums transition-all"
-                            :class="zekr.isRead ? 'counter-done' : 'counter-pending'">
-                            <IconCheck v-if="zekr.isRead" class="w-4 h-4" />
-                            <template v-else>{{ zekr.currentCount ?? 0 }}</template>
-                        </span>
-                        <span class="text-sm font-quran"
-                            :class="zekr.isRead ? 'counter-label-done' : 'counter-label-pending'">
-                            <template v-if="zekr.isRead">
-                                تم
-                            </template>
-                            <template v-else>
-                                من {{ zekr.count ?? 1 }}
-                            </template>
-                        </span>
+        <article v-else class="max-w-3xl mx-auto px-4 md:px-8">
+            <header class="sticky top-0 z-10 bg-surface pt-6 pb-4 border-b border-line">
+                <h1 class="font-display font-semibold text-2xl md:text-3xl leading-[1.5] text-balance">{{ zekr.title }}</h1>
+                <div class="mt-3 flex items-center gap-3">
+                    <div class="flex-1 h-2 rounded-full overflow-hidden bg-primary/20" role="progressbar"
+                        :aria-valuenow="progress.done" aria-valuemin="0" :aria-valuemax="progress.total"
+                        :aria-label="`أتممت ${progress.done} من ${progress.total}`">
+                        <div class="h-full rounded-full bg-gold transition-[width] duration-300 ease-out"
+                            :style="{ width: progress.percent + '%' }"></div>
                     </div>
-
-                    <button v-if="zekr.currentCount > 0" type="button"
-                        @click.stop="uiStore.resetCounter(zekr)"
-                        class="text-xs font-semibold min-h-11 px-3 rounded-md transition-colors duration-150"
-                        style="color: var(--muted);"
-                        aria-label="إعادة العدّ">
-                        إعادة
+                    <span class="text-xs text-muted tabular-nums whitespace-nowrap">
+                        <span class="text-primary font-semibold">{{ arNum(progress.done) }}</span> من {{ arNum(progress.total) }}
+                    </span>
+                    <button v-if="zekr.items.some(i => ui.countOf(i))" type="button" @click="ui.resetSection(zekr)"
+                        class="min-h-9 px-3 -me-3 rounded-md text-xs text-muted hover:bg-primary-soft hover:text-ink transition-colors duration-200">
+                        إعادة الكل
                     </button>
                 </div>
-            </article>
-        </div>
-    </div>
+            </header>
 
-    <div v-else class="col-span-10 md:col-span-7 lg:col-span-8 grid place-items-center px-6 py-10"
-        style="background: var(--bg);">
-        <div class="text-center max-w-md animate-fade-in">
-            <div class="relative mx-auto mb-8 grid place-items-center w-24 h-24 rounded-full"
-                style="background: var(--accent-soft);">
-                <span class="absolute inset-0 rounded-full ring-1 ring-inset"
-                    style="--tw-ring-color: var(--accent-ring);"></span>
-                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" aria-hidden="true"
-                    style="color: var(--accent);">
-                    <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="1.2"
-                        stroke-dasharray="2 3" opacity="0.4" />
-                    <path d="M16.6 8.4a6 6 0 1 0 0 7.2" stroke="currentColor"
-                        stroke-width="1.7" stroke-linecap="round" />
-                    <circle cx="19" cy="5.6" r="1" fill="currentColor" opacity="0.7" />
-                </svg>
-            </div>
+            <ol class="flex flex-col gap-4 py-6">
+                <li v-for="(item, idx) in zekr.items" :key="item.id" :id="`item-${item.id}`"
+                    class="rounded-md border bg-raised transition-colors duration-300"
+                    :class="ui.isDone(item) ? 'border-gold/60' : 'border-line'">
+                    <button type="button" @click="tap(item)"
+                        class="block w-full text-start px-4 md:px-6 pt-5 pb-4 rounded-t-md active:bg-primary-soft transition-colors duration-200 cursor-pointer select-none"
+                        :aria-label="`الذكر ${idx + 1}: ${ui.countOf(item)} من ${item.count}. اضغط للعدّ`">
+                        <p class="font-quran text-[21px] md:text-[25px] leading-[2.1] text-pretty transition-opacity duration-300"
+                            :class="ui.isDone(item) && 'opacity-60'">{{ item.text }}</p>
+                    </button>
 
-            <h2 class="font-bold text-2xl md:text-3xl text-ink tracking-tightish text-balance font-quran">
-                مرحبًا بك
-            </h2>
-            <p class="mt-3 text-[15px] leading-relaxed text-ink-soft text-pretty max-w-sm mx-auto">
-                اختر ذكرًا من القائمة لتبدأ القراءة والتسبيح.
-                التطبيق يعمل دون اتصال، والأذكار بانتظارك.
-            </p>
+                    <div class="flex items-center gap-3 px-4 md:px-6 py-2.5 border-t border-line">
+                        <span class="text-xs text-muted tabular-nums" aria-hidden="true">{{ arNum(idx + 1) }}</span>
+                        <span v-if="item.count > 1 && !ui.isDone(item)" class="flex-1 h-1 rounded-full overflow-hidden bg-primary/15" aria-hidden="true">
+                            <span class="block h-full bg-primary transition-[width] duration-200 ease-out"
+                                :style="{ width: (ui.countOf(item) / item.count) * 100 + '%' }"></span>
+                        </span>
+                        <span v-else class="flex-1"></span>
 
-            <div class="mt-8 mx-auto w-12 h-px"
-                style="background: var(--accent); opacity: 0.4;" aria-hidden="true"></div>
-        </div>
-    </div>
+                        <button v-if="ui.countOf(item)" type="button" @click="ui.reset(item)"
+                            class="min-h-11 px-2 rounded-md text-xs text-muted hover:text-ink hover:bg-primary-soft transition-colors duration-200"
+                            :aria-label="`إعادة عدّ الذكر ${idx + 1}`">
+                            إعادة
+                        </button>
+
+                        <span aria-live="polite"
+                            class="inline-flex items-center justify-center gap-1.5 min-w-[4.5rem] h-9 px-3 rounded-full text-sm tabular-nums transition-colors duration-300"
+                            :class="ui.isDone(item) ? 'bg-gold text-on-gold font-semibold' : 'bg-sunken text-ink'">
+                            <template v-if="ui.isDone(item)">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+                                تمّ
+                            </template>
+                            <template v-else>
+                                <span class="font-display font-bold">{{ arNum(ui.countOf(item)) }}</span>
+                                <span class="text-muted">/ {{ arNum(item.count) }}</span>
+                            </template>
+                        </span>
+                    </div>
+                </li>
+            </ol>
+
+            <footer class="pb-[calc(3rem+env(safe-area-inset-bottom))]">
+                <div class="flex items-center gap-3 text-gold" aria-hidden="true">
+                    <span class="flex-1 h-px bg-line"></span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" class="fill-gold">
+                        <rect x="5" y="5" width="14" height="14" /><rect x="5" y="5" width="14" height="14" transform="rotate(45 12 12)" />
+                    </svg>
+                    <span class="flex-1 h-px bg-line"></span>
+                </div>
+                <!-- RTL: previous sits on the right (pointing right), next on the left (pointing left) -->
+                <nav class="mt-6 grid gap-3 sm:grid-cols-2" aria-label="التنقل بين الأبواب">
+                    <a v-if="prev" :href="`#${prev.id}`"
+                        class="flex items-center gap-3 min-h-11 px-4 py-3 rounded-md border border-line-strong text-ink no-underline hover:border-primary hover:text-primary transition-colors duration-200">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                            stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+                        <span class="min-w-0"><span class="block text-xs text-muted">الباب السابق</span>{{ prev.title }}</span>
+                    </a>
+                    <a v-if="next" :href="`#${next.id}`"
+                        class="flex items-center justify-end gap-3 min-h-11 px-4 py-3 rounded-md border border-line-strong text-ink no-underline text-end hover:border-primary hover:text-primary transition-colors duration-200 sm:col-start-2">
+                        <span class="min-w-0"><span class="block text-xs text-muted">الباب التالي</span>{{ next.title }}</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                            stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+                    </a>
+                </nav>
+            </footer>
+        </article>
+    </main>
 </template>
-
-<style scoped>
-.tap-target {
-    background: transparent;
-    border: 0;
-    color: inherit;
-    font: inherit;
-}
-.tap-target:hover {
-    background: color-mix(in oklch, var(--surface-2) 50%, transparent);
-}
-.tap-target:active {
-    background: color-mix(in oklch, var(--accent) 7%, transparent);
-}
-.tap-target:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: -2px;
-}
-
-.tap-pulse {
-    animation: tap-bump 220ms cubic-bezier(0.25, 1, 0.5, 1);
-}
-@keyframes tap-bump {
-    0%   { transform: scale(1); }
-    35%  { transform: scale(0.985); }
-    100% { transform: scale(1); }
-}
-
-.counter-display .counter-pending {
-    background: var(--surface);
-    color: var(--accent);
-    box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--accent) 35%, transparent);
-}
-.counter-display .counter-done {
-    background: var(--accent);
-    color: var(--bg);
-    box-shadow: none;
-}
-.counter-label-pending { color: var(--muted); }
-.counter-label-done { color: var(--accent); font-weight: 600; }
-
-.progress-track {
-    box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--accent) 8%, transparent);
-}
-
-article.is-read {
-    box-shadow: 0 0 0 1px color-mix(in oklch, var(--accent) 22%, transparent),
-        0 6px 22px color-mix(in oklch, var(--accent) 18%, transparent);
-}
-article.is-read::before {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(to bottom,
-        color-mix(in oklch, var(--accent) 60%, transparent),
-        transparent);
-    pointer-events: none;
-}
-</style>

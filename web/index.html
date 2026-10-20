@@ -2,16 +2,27 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" href="/beads.ico">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>حصن المسلم</title>
-  <meta name="description" content="حصن المسلم - أذكار المسلم اليومية">
+  <meta name="description" content="حصن المسلم من أذكار الكتاب والسنة، مع عدّاد للتسبيح يعمل دون اتصال">
   <link rel="icon" href="/beads.ico">
   <link rel="apple-touch-icon" href="/logo.png" sizes="180x180">
-  <meta name="theme-color" content="#0c1f1c">
-  <script src="https://siraaj.live/sdk/analytics.umd.min.js"></script>
+  <meta name="theme-color" content="#fefae0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#141b0c" media="(prefers-color-scheme: dark)">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Reem+Kufi:wght@600;700&display=swap">
+  <script>
+    // Set the theme before first paint so there is no flash.
+    (function () {
+      var t; try { t = localStorage.getItem('mf:theme') } catch (e) {}
+      if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <script defer src="https://siraaj.live/sdk/analytics.umd.min.js"></script>
 </head>
-<body class="antialiased">
+<body>
   <div id="app"></div>
   <script type="module" src="/src/main.js"></script>
 </body>
