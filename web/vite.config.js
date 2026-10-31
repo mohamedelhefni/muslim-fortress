@@ -11,8 +11,9 @@ export default defineConfig({
 
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['beads.ico', 'logo.png', 'beads.svg'],
+      includeAssets: ['favicon.ico', 'logo.png', 'fonts/ScheherazadeNew-Regular.woff2'],
       workbox: {
+        globPatterns: ['**/*.{js,css,html,woff2}'],
         // Offline-first: keep the Google Fonts the reader needs.
         runtimeCaching: [{
           urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/,
@@ -26,8 +27,8 @@ export default defineConfig({
         description: 'حصن المسلم من أذكار الكتاب والسنة',
         lang: 'ar',
         dir: 'rtl',
-        theme_color: '#fefae0',
-        background_color: '#fefae0',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
         icons: [
           {
             src: '/logo.png',

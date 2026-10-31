@@ -28,3 +28,6 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# Thmanyah license forbids redistributing the font files; bundled into builds only.
+src/assets/fonts/thmanyah/

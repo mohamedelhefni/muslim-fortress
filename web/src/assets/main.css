@@ -2,35 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Rawdah design system (~/projects/base/DESIGN.md): cornsilk paper, olive leaf, sunlit clay. Dark = night forest. */
+/* Mizan design system (https://claude.ai/artifact/GiJH6fcgLqNXa1Qj1g78vi): black, white and greys. */
 @layer base {
+  /* Thmanyah: bundled into the build (license allows packaged web embedding), git-ignored since redistribution is forbidden. */
+  @font-face { font-family: "Thmanyah Sans"; src: url(./fonts/thmanyah/thmanyahsans-Light.woff2) format("woff2"); font-weight: 300; font-display: swap; }
+  @font-face { font-family: "Thmanyah Sans"; src: url(./fonts/thmanyah/thmanyahsans-Regular.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Thmanyah Sans"; src: url(./fonts/thmanyah/thmanyahsans-Medium.woff2) format("woff2"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Thmanyah Sans"; src: url(./fonts/thmanyah/thmanyahsans-Bold.woff2) format("woff2"); font-weight: 700; font-display: swap; }
+  @font-face { font-family: "Thmanyah Serif Text"; src: url(./fonts/thmanyah/thmanyahseriftext-Light.woff2) format("woff2"); font-weight: 300; font-display: swap; }
+  @font-face { font-family: "Thmanyah Serif Text"; src: url(./fonts/thmanyah/thmanyahseriftext-Regular.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Thmanyah Serif Text"; src: url(./fonts/thmanyah/thmanyahseriftext-Medium.woff2) format("woff2"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Thmanyah Serif Text"; src: url(./fonts/thmanyah/thmanyahseriftext-Bold.woff2) format("woff2"); font-weight: 700; font-display: swap; }
+  @font-face { font-family: "Thmanyah Serif Display"; src: url(./fonts/thmanyah/thmanyahserifdisplay-Light.woff2) format("woff2"); font-weight: 300; font-display: swap; }
+  @font-face { font-family: "Thmanyah Serif Display"; src: url(./fonts/thmanyah/thmanyahserifdisplay-Regular.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Thmanyah Serif Display"; src: url(./fonts/thmanyah/thmanyahserifdisplay-Medium.woff2) format("woff2"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Thmanyah Serif Display"; src: url(./fonts/thmanyah/thmanyahserifdisplay-Bold.woff2) format("woff2"); font-weight: 700; font-display: swap; }
+  @font-face {
+    font-family: "Scheherazade New";
+    src: url(/fonts/ScheherazadeNew-Regular.woff2) format("woff2");
+    font-weight: 400;
+    font-display: swap;
+  }
+
   :root {
     color-scheme: light;
-    --surface: #fefae0; --surface-raised: #fffdf2; --surface-sunken: #f3edcc;
-    --ink: #283618; --ink-muted: #55603a; --line: #d9d0a6; --line-strong: #8a8558;
-    --primary: #606c38; --primary-hover: #4e5a2b; --on-primary: #fefae0; --primary-soft: #e9ebcf;
-    --copper: #9c5519; --copper-soft: #f6e3c8;
-    --gold: #dda15e; --on-gold: #283618; --focus: #bc6c25;
+    --surface: #ffffff; --surface-raised: #ffffff; --surface-sunken: #f5f5f5; --feature: #f2f2f2;
+    --ink: #0a0a0a; --ink-muted: #595959; --line: #e5e5e5; --line-strong: #8a8a8a;
+    --primary: #0a0a0a; --primary-hover: #2e2e2e; --on-primary: #ffffff; --primary-soft: #ededed;
+    --ornament: #a3a3a3;
+    --app-tile: #0a0a0a; --app-glyph: #ffffff; --app-ring: #0a0a0a;
+    --focus-ring: 0 0 0 2px #ffffff, 0 0 0 4px #0a0a0a;
+
+    --font-head: "Thmanyah Serif Display", "thmanyah serif display", "Noto Naskh Arabic", Georgia, serif;
+    --font-text: "Thmanyah Serif Text", "thmanyah serif text", "Noto Naskh Arabic", Georgia, serif;
+    --font-digital: "Thmanyah Sans", "thmanyah sans", Almarai, Tahoma, system-ui, sans-serif;
+    --font-quran: "Scheherazade New", "Noto Naskh Arabic", serif;
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --surface: #141b0c; --surface-raised: #1f2a12; --surface-sunken: #0f1409;
-    --ink: #fefae0; --ink-muted: #c2c3a0; --line: #3b4826; --line-strong: #7d8a56;
-    --primary: #a9b874; --primary-hover: #bcc98a; --on-primary: #141b0c; --primary-soft: #2a3618;
-    --copper: #e2ac6c; --copper-soft: #3a2a14; --focus: #dda15e;
+    --surface: #0a0a0a; --surface-raised: #141414; --surface-sunken: #000000; --feature: #171717;
+    --ink: #fafafa; --ink-muted: #a3a3a3; --line: #262626; --line-strong: #737373;
+    --primary: #fafafa; --primary-hover: #d4d4d4; --on-primary: #0a0a0a; --primary-soft: #262626;
+    --ornament: #595959;
+    --app-ring: #404040;
+    --focus-ring: 0 0 0 2px #0a0a0a, 0 0 0 4px #fafafa;
   }
 
   html, body { height: 100%; }
   body {
     background: var(--surface);
     color: var(--ink);
-    font: 400 16px/1.75 "IBM Plex Sans Arabic", system-ui, sans-serif;
+    font: 400 16px/28px var(--font-digital);
+    font-variant-numeric: tabular-nums;
     -webkit-tap-highlight-color: transparent;
     -webkit-font-smoothing: antialiased;
   }
   button, a, [role="button"] { touch-action: manipulation; }
-  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
-  ::selection { background: var(--gold); color: var(--on-gold); }
+  /* The transparent outline still shows in forced-colors mode, where shadows are dropped. */
+  :focus-visible:not(input) { outline: 2px solid transparent; box-shadow: var(--focus-ring); }
+  ::selection { background: var(--primary); color: var(--on-primary); }
 }
 
 @layer utilities {
@@ -38,13 +68,8 @@
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
-
-  /* Khatam (eight-point star) tile, coloured through a mask so it follows the theme. */
-  .khatam {
-    background: currentColor;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cg fill='none' stroke='black' stroke-width='1.2'%3E%3Crect x='14' y='14' width='20' height='20'/%3E%3Crect x='14' y='14' width='20' height='20' transform='rotate(45 24 24)'/%3E%3Cpath d='M0 24h7M41 24h7M24 0v7M24 41v7'/%3E%3C/g%3E%3C/svg%3E") 0 0/48px 48px;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cg fill='none' stroke='black' stroke-width='1.2'%3E%3Crect x='14' y='14' width='20' height='20'/%3E%3Crect x='14' y='14' width='20' height='20' transform='rotate(45 24 24)'/%3E%3Cpath d='M0 24h7M41 24h7M24 0v7M24 41v7'/%3E%3C/g%3E%3C/svg%3E") 0 0/48px 48px;
-  }
+  /* الأحرف المرسلة: one chosen word per headline. Only visible once Thmanyah is present. */
+  .mz-mursala { font-feature-settings: "salt" 1; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
